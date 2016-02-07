@@ -8,14 +8,15 @@ Instagram.requestCredential = function (options, credentialRequestCompleteCallba
 
   var config = ServiceConfiguration.configurations.findOne({service: 'instagram'});
   if (!config) {
-    credentialRequestCompleteCallback && credentialRequestCompleteCallback(
-      new ServiceConfiguration.ConfigError());
+    if(credentialRequestCompleteCallback) credentialRequestCompleteCallback(new ServiceConfiguration.ConfigError());
     return;
   }
   var credentialToken = Random.secret();
   var loginStyle = OAuth._loginStyle('instagram', config, options);
-  var scope = (options && options.requestPermissions) || ['basic', 'likes', 'relationships', 'comments'];
-  var flatScope = _.map(scope, encodeURIComponent).join('+');
+	console.log(config);
+  var scope = config.hasOwnProperty('scope')? config.scope:['basic', 'likes', 'relationships', 'comments'];
+	console.log(scope);
+	var flatScope = _.map(scope, encodeURIComponent).join('+');
 
   var loginUrl =
     'https://instagram.com/oauth/authorize' +
@@ -26,10 +27,10 @@ Instagram.requestCredential = function (options, credentialRequestCompleteCallba
       '&state=' + OAuth._stateParam(loginStyle, credentialToken);
 
   OAuth.launchLogin({
-    loginService: "instagram"
-    , loginStyle: loginStyle
-    , loginUrl: loginUrl
-    , credentialRequestCompleteCallback: credentialRequestCompleteCallback
-    , credentialToken: credentialToken
+    loginService: "instagram",
+		loginStyle: loginStyle,
+		loginUrl: loginUrl,
+		credentialRequestCompleteCallback: credentialRequestCompleteCallback,
+		credentialToken: credentialToken
   });
 };
